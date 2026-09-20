@@ -1,27 +1,22 @@
-# Bỏ qua các file ảnh RAW (dung lượng lớn)
+# 1. Bo qua cac file anh RAW va anh ket qua
 *.raw
-
-# Bỏ qua các file ảnh xem trước PNG
 *.png
-
-# Bỏ qua các file ảnh đầu vào khác nếu có
 *.jpg
 *.jpeg
 *.bmp
 
-# Bỏ qua bộ nhớ đệm Python
+# 2. Bo qua file thuc thi da bien dich tu C
+*.exe
+*.o
+*.obj
+
+# 3. Bo qua cache Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Bỏ qua file lưu tạm thông số kích thước
+# 4. Bo qua file tam va thu muc nhap
 image_dim.txt
-
-# Bỏ qua file thực thi và object C đã biên dịch
-*.exe
-*.o
-
-# Bỏ qua thư mục cấu hình IDE nếu có
+test/
 .vscode/
 .idea/
-

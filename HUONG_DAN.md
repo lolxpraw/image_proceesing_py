@@ -1,95 +1,88 @@
-# HƯỚNG DẪN BÀI TẬP 2 (BT2) - XỬ LÝ ẢNH RAW BẰNG PYTHON
+# Instructions: RAW Image Processing with Python (Assignment 2)
 
-> Toàn bộ mã nguồn và dữ liệu đã được đặt tại: `D:\image processing`
+> Project directory: `D:\image processing`
 
 ---
 
-## 1. Danh sách các file trong thư mục
+## 1. File Overview
 
-| Tên File | Vai trò |
+| File | Purpose |
 | :--- | :--- |
-| `step1_create_rgb_raw.py` | Tạo file ảnh màu `rgb.raw` (24 bit/pixel = 3 byte/pixel) |
-| `step2_rgb_to_gray.py` | **Chuyển từ C sang Python**: Chuyển `rgb.raw` thành ảnh xám `gray.raw` (8 bit/pixel) |
-| `step3_gray_to_binary.py` | Chuyển ảnh xám `gray.raw` sang ảnh nhị phân `binary.raw` (Binary scale) |
-| `run_all.py` | Chạy tự động cả 3 bước một cách liền mạch |
-| `rgb.raw` | File RAW màu RGB (Dung lượng: 786,432 bytes) |
-| `gray.raw` | File RAW ảnh xám (Dung lượng: 262,144 bytes) |
-| `binary.raw` | File RAW nhị phân (Dung lượng: 262,144 bytes) |
-| `*.png` | Ảnh xem trước (preview) để bạn mở xem trực tiếp mà chưa cần bật Photoshop |
+| `step1_create_rgb_raw.py` | Generates 24-bit/pixel color image `rgb.raw` (3 bytes/pixel: R, G, B) |
+| `step2_rgb_to_gray.py` | **Replaces C Program with Python**: Converts `rgb.raw` to 8-bit grayscale image `gray.raw` |
+| `step3_gray_to_binary.py` | Converts `gray.raw` to binary scale image `binary.raw` |
+| `run_all.py` | Automates all 3 steps in sequence |
+| `README.md` | Standard project documentation for GitHub |
+| `.gitignore` | Ignores `.raw`, `.png`, and Python cache files |
 
 ---
 
-## 2. Cách chạy chương trình bằng Python
+## 2. How to Run
 
-Mở terminal (PowerShell hoặc CMD) tại thư mục `D:\image processing`:
+Open your terminal (PowerShell or CMD) in `D:\image processing`:
 
-### Cách 1: Chạy tất cả các bước chỉ với 1 lệnh
-- **Dùng ảnh mẫu tự sinh (512x512)**:
+### Method 1: Execute all steps with a single command (Recommended)
+- **Using the synthetic 512x512 test image**:
   ```powershell
   python run_all.py
   ```
-- **Dùng một bức ảnh bất kỳ của bạn** (JPG, PNG, BMP,...):
-  1. Copy file ảnh vào thư mục `D:\image processing` (ví dụ file tên `anh_cua_toi.jpg`).
-  2. Chạy lệnh:
+- **Using your custom image** (JPG, PNG, BMP,...):
+  1. Copy your image into `D:\image processing` (e.g., `my_photo.jpg`).
+  2. Run:
      ```powershell
-     python run_all.py anh_cua_toi.jpg
+     python run_all.py my_photo.jpg
      ```
-     *(Chương trình sẽ tự động lấy kích thước ảnh gốc, lưu vào `image_dim.txt` và chuyển qua tất cả các bước Step 1 -> 2 -> 3 mà bạn không cần tính toán hay gõ lại kích thước!)*
+     *(The program automatically detects original image dimensions, saves them to `image_dim.txt`, and processes all steps without requiring manual dimension parameters).*
 
-### Cách 2: Chạy từng bước riêng biệt
+### Method 2: Execute each step separately
 ```powershell
-# Bước 1: Tạo rgb.raw từ ảnh của bạn
-python step1_create_rgb_raw.py anh_cua_toi.jpg
+# Step 1: Create rgb.raw from test pattern or custom image
+python step1_create_rgb_raw.py
+# (Or with custom image: python step1_create_rgb_raw.py my_photo.jpg)
 
-# Bước 2: Chuyển sang gray.raw (Tự động nhận diện kích thước từ ảnh ở Bước 1)
+# Step 2: Convert to gray.raw (Automatically detects dimensions from Step 1)
 python step2_rgb_to_gray.py
 
-# Bước 3: Chuyển sang binary.raw (Tự động nhận diện kích thước, có thể chỉ định ngưỡng tùy chọn ví dụ 128)
+# Step 3: Convert to binary.raw (Automatically detects dimensions, optional threshold e.g. 128)
 python step3_gray_to_binary.py
 ```
 
 ---
 
-## 3. Hướng dẫn mở và kiểm tra file RAW trên Adobe Photoshop
+## 3. Opening & Verifying RAW Files in Adobe Photoshop
 
-File `.raw` (Photoshop Raw) là dữ liệu nhị phân thô không có header, do đó Photoshop sẽ yêu cầu bạn nhập các thông số hình học và kênh màu. Khi mở, hãy chọn định dạng **Photoshop Raw**:
+In Photoshop, choose **File -> Open As -> Photoshop Raw (*.RAW)**:
 
-### A. Mở file `rgb.raw` (Step 1):
-Vào Photoshop: **File -> Open As -> Photoshop Raw (*.RAW)**, chọn `rgb.raw`:
-- **Width**: `512` Pixels
-- **Height**: `512` Pixels
+### A. For `rgb.raw` (Step 1):
+- **Width**: `512` (or your image width)
+- **Height**: `512` (or your image height)
 - **Channels**: `3` (RGB Color)
 - **Depth**: `8 Bits`
-- **Interleaved**: Đánh dấu tích chọn `[x]` (vì lưu xen kẽ R, G, B liên tục)
+- **Interleaved**: Check `[x]`
 - **Header**: `0` Bytes
 
-### B. Mở file `gray.raw` (Step 2):
-Vào Photoshop: **File -> Open As -> Photoshop Raw (*.RAW)**, chọn `gray.raw`:
-- **Width**: `512` Pixels
-- **Height**: `512` Pixels
+### B. For `gray.raw` (Step 2):
+- **Width**: `512` (or your image width)
+- **Height**: `512` (or your image height)
 - **Channels**: `1` (Grayscale)
 - **Depth**: `8 Bits`
 - **Header**: `0` Bytes
 
-### C. Mở file `binary.raw` (Step 3):
-Vào Photoshop: **File -> Open As -> Photoshop Raw (*.RAW)**, chọn `binary.raw`:
-- **Width**: `512` Pixels
-- **Height**: `512` Pixels
+### C. For `binary.raw` (Step 3):
+- **Width**: `512` (or your image width)
+- **Height**: `512` (or your image height)
 - **Channels**: `1` (Grayscale)
 - **Depth**: `8 Bits`
 - **Header**: `0` Bytes
 
 ---
 
-## 4. Đối chiếu mã nguồn C và Python (Dành cho báo cáo / vấn đáp)
+## 4. Source Code Mapping: C vs. Python (For Reports / Viva)
 
-Khi thầy cô yêu cầu giải thích việc chuyển đổi từ C sang Python ở Step 2, bạn có thể trình bày bảng đối chiếu logic 1:1 này:
-
-| Thao tác | Mã nguồn C | Mã nguồn Python (`step2_rgb_to_gray.py`) |
+| Task | C Language | Python (`step2_rgb_to_gray.py`) |
 | :--- | :--- | :--- |
-| **Mở file nhị phân** | `FILE *f_in = fopen("rgb.raw", "rb");`<br>`FILE *f_out = fopen("gray.raw", "wb");` | `with open("rgb.raw", "rb") as f_in:`<br>`with open("gray.raw", "wb") as f_out:` |
-| **Cấp phát bộ nhớ đệm** | `unsigned char *gray = malloc(W * H);` | `gray_buffer = bytearray(W * H)` |
-| **Đọc dữ liệu** | `fread(rgb, sizeof(unsigned char), 3, f_in);` | `r = raw_rgb[i*3]; g = raw_rgb[i*3+1]; b = raw_rgb[i*3+2]` |
-| **Công thức Luminance** | `val = 0.299*r + 0.587*g + 0.114*b;` | `gray_val = int(0.299*r + 0.587*g + 0.114*b + 0.5)` |
-| **Ghi ra file RAW** | `fwrite(&val, sizeof(unsigned char), 1, f_out);` | `f_out.write(gray_buffer)` |
-
+| **Open binary files** | `FILE *f_in = fopen("rgb.raw", "rb");`<br>`FILE *f_out = fopen("gray.raw", "wb");` | `with open("rgb.raw", "rb") as f_in:`<br>`with open("gray.raw", "wb") as f_out:` |
+| **Allocate buffer** | `unsigned char *gray = malloc(W * H);` | `gray_buffer = bytearray(W * H)` |
+| **Read raw data** | `fread(rgb, sizeof(unsigned char), 3, f_in);` | `r = raw_rgb[i*3]; g = raw_rgb[i*3+1]; b = raw_rgb[i*3+2]` |
+| **Luminance formula** | `val = 0.299*r + 0.587*g + 0.114*b;` | `gray_val = int(0.299*r + 0.587*g + 0.114*b + 0.5)` |
+| **Write raw bytes** | `fwrite(&val, sizeof(unsigned char), 1, f_out);` | `f_out.write(gray_buffer)` |

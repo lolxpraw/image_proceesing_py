@@ -1,0 +1,23 @@
+# Bỏ qua các file ảnh RAW (dung lượng lớn)
+*.raw
+
+# Bỏ qua các file ảnh xem trước PNG
+*.png
+
+# Bỏ qua các file ảnh đầu vào khác nếu có
+*.jpg
+*.jpeg
+*.bmp
+
+# Bỏ qua bộ nhớ đệm Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Bỏ qua file lưu tạm thông số kích thước
+image_dim.txt
+
+# Bỏ qua thư mục cấu hình IDE nếu có
+.vscode/
+.idea/
+

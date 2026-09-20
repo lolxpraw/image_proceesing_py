@@ -17,6 +17,10 @@ __pycache__/
 # Bỏ qua file lưu tạm thông số kích thước
 image_dim.txt
 
+# Bỏ qua file thực thi và object C đã biên dịch
+*.exe
+*.o
+
 # Bỏ qua thư mục cấu hình IDE nếu có
 .vscode/
 .idea/

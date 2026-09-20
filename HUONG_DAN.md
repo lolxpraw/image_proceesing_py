@@ -1,88 +1,89 @@
-# Instructions: RAW Image Processing with Python (Assignment 2)
+# HƯỚNG DẪN BÀI TẬP 2 (BT2) - XỬ LÝ ẢNH RAW (PYTHON + C)
 
-> Project directory: `D:\image processing`
+> Thư mục làm việc: `D:\image processing`
 
----
-
-## 1. File Overview
-
-| File | Purpose |
-| :--- | :--- |
-| `step1_create_rgb_raw.py` | Generates 24-bit/pixel color image `rgb.raw` (3 bytes/pixel: R, G, B) |
-| `step2_rgb_to_gray.py` | **Replaces C Program with Python**: Converts `rgb.raw` to 8-bit grayscale image `gray.raw` |
-| `step3_gray_to_binary.py` | Converts `gray.raw` to binary scale image `binary.raw` |
-| `run_all.py` | Automates all 3 steps in sequence |
-| `README.md` | Standard project documentation for GitHub |
-| `.gitignore` | Ignores `.raw`, `.png`, and Python cache files |
+Theo đúng yêu cầu của đề bài:
+- **Step 1 (Python)**: Tạo ảnh màu `rgb.raw` (24 bit/pixel).
+- **Step 2 (C)**: Viết chương trình C chuyển từ `rgb.raw` -> `gray.raw` (8 bit/pixel).
+- **Step 3 (C)**: Viết chương trình C chuyển từ `gray.raw` -> `binary.raw` (nhị phân hóa, 8 bit/pixel: 0 và 255).
 
 ---
 
-## 2. How to Run
+## 1. Danh sách các file trong thư mục
 
-Open your terminal (PowerShell or CMD) in `D:\image processing`:
+| File | Ngôn ngữ | Vai trò |
+| :--- | :--- | :--- |
+| **`step1_create_rgb_raw.py`** | Python | Tạo file `rgb.raw` (tự động sinh ảnh màu mẫu hoặc chuyển từ ảnh JPG/PNG bất kỳ) |
+| **`step2_rgb_to_gray.c`** | C | Đọc `rgb.raw`, tính mức xám $Y = 0.299R + 0.587G + 0.114B$, ghi ra `gray.raw` |
+| **`step3_gray_to_binary.c`** | C | Đọc `gray.raw`, phân ngưỡng với $T = 128$, ghi ra `binary.raw` |
+| **`run_all.py`** | Python | Script tự động chạy cả 3 bước (tự biên dịch C bằng `gcc` và chạy) |
+| **`README.md`** | Markdown | Tài liệu tiếng Anh chuẩn để hiển thị trên GitHub |
+| **`.gitignore`** | Git | Loại bỏ các file `.raw`, `.png`, file `.exe` đã biên dịch khỏi Git |
 
-### Method 1: Execute all steps with a single command (Recommended)
-- **Using the synthetic 512x512 test image**:
-  ```powershell
-  python run_all.py
-  ```
-- **Using your custom image** (JPG, PNG, BMP,...):
-  1. Copy your image into `D:\image processing` (e.g., `my_photo.jpg`).
-  2. Run:
-     ```powershell
-     python run_all.py my_photo.jpg
-     ```
-     *(The program automatically detects original image dimensions, saves them to `image_dim.txt`, and processes all steps without requiring manual dimension parameters).*
+---
 
-### Method 2: Execute each step separately
+## 2. Cách biên dịch chương trình C bằng GCC
+
+Nếu muốn tự biên dịch thủ công bằng dòng lệnh:
+
 ```powershell
-# Step 1: Create rgb.raw from test pattern or custom image
-python step1_create_rgb_raw.py
-# (Or with custom image: python step1_create_rgb_raw.py my_photo.jpg)
+# Biên dịch Step 2
+gcc -O2 step2_rgb_to_gray.c -o step2_rgb_to_gray.exe
 
-# Step 2: Convert to gray.raw (Automatically detects dimensions from Step 1)
-python step2_rgb_to_gray.py
-
-# Step 3: Convert to binary.raw (Automatically detects dimensions, optional threshold e.g. 128)
-python step3_gray_to_binary.py
+# Biên dịch Step 3
+gcc -O2 step3_gray_to_binary.c -o step3_gray_to_binary.exe
 ```
 
 ---
 
-## 3. Opening & Verifying RAW Files in Adobe Photoshop
+## 3. Cách chạy chương trình
 
-In Photoshop, choose **File -> Open As -> Photoshop Raw (*.RAW)**:
+### Cách 1: Chạy tự động trọn gói (Khuyên dùng)
+```powershell
+# Dùng ảnh mẫu 512x512
+python run_all.py
 
-### A. For `rgb.raw` (Step 1):
-- **Width**: `512` (or your image width)
-- **Height**: `512` (or your image height)
-- **Channels**: `3` (RGB Color)
-- **Depth**: `8 Bits`
-- **Interleaved**: Check `[x]`
-- **Header**: `0` Bytes
-
-### B. For `gray.raw` (Step 2):
-- **Width**: `512` (or your image width)
-- **Height**: `512` (or your image height)
-- **Channels**: `1` (Grayscale)
-- **Depth**: `8 Bits`
-- **Header**: `0` Bytes
-
-### C. For `binary.raw` (Step 3):
-- **Width**: `512` (or your image width)
-- **Height**: `512` (or your image height)
-- **Channels**: `1` (Grayscale)
-- **Depth**: `8 Bits`
-- **Header**: `0` Bytes
+# Hoặc dùng ảnh của bạn:
+python run_all.py my_photo.jpg
+```
 
 ---
 
-## 4. Source Code Mapping: C vs. Python (For Reports / Viva)
+### Cách 2: Chạy từng bước độc lập
 
-| Task | C Language | Python (`step2_rgb_to_gray.py`) |
-| :--- | :--- | :--- |
-| **Open binary files** | `FILE *f_in = fopen("rgb.raw", "rb");`<br>`FILE *f_out = fopen("gray.raw", "wb");` | `with open("rgb.raw", "rb") as f_in:`<br>`with open("gray.raw", "wb") as f_out:` |
-| **Allocate buffer** | `unsigned char *gray = malloc(W * H);` | `gray_buffer = bytearray(W * H)` |
-| **Read raw data** | `fread(rgb, sizeof(unsigned char), 3, f_in);` | `r = raw_rgb[i*3]; g = raw_rgb[i*3+1]; b = raw_rgb[i*3+2]` |
-| **Luminance formula** | `val = 0.299*r + 0.587*g + 0.114*b;` | `gray_val = int(0.299*r + 0.587*g + 0.114*b + 0.5)` |
-| **Write raw bytes** | `fwrite(&val, sizeof(unsigned char), 1, f_out);` | `f_out.write(gray_buffer)` |
+#### Bước 1 (Python):
+```powershell
+python step1_create_rgb_raw.py
+# (Hoặc: python step1_create_rgb_raw.py my_photo.jpg)
+```
+
+#### Bước 2 (C):
+```powershell
+.\step2_rgb_to_gray.exe
+```
+
+#### Bước 3 (C):
+```powershell
+.\step3_gray_to_binary.exe
+```
+
+---
+
+## 4. Kiểm tra trên Adobe Photoshop
+
+Mở Photoshop: **File -> Open As -> Photoshop Raw (*.RAW)**:
+
+- **`rgb.raw`**: Width & Height (ví dụ: `512` x `512`), Channels: `3`, Depth: `8 Bits`, Interleaved: `[x]`, Header: `0` Bytes.
+- **`gray.raw`**: Width & Height (ví dụ: `512` x `512`), Channels: `1`, Depth: `8 Bits`, Header: `0` Bytes.
+- **`binary.raw`**: Width & Height (ví dụ: `512` x `512`), Channels: `1`, Depth: `8 Bits`, Header: `0` Bytes.
+
+---
+
+## 5. Đẩy cập nhật lên GitHub
+
+```powershell
+git add step2_rgb_to_gray.c step3_gray_to_binary.c run_all.py README.md HUONG_DAN.md .gitignore
+git commit -m "Update Step 2 and Step 3 to C implementation, remove py"
+git push
+```
+

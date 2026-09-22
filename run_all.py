@@ -14,7 +14,7 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
-from step1_create_rgb_raw import create_sample_rgb_image, save_rgb_raw, convert_image_to_rgb_raw
+from step1_create_rgb_raw import create_sample_rgb_image, save_rgb_raw
 
 def compile_c_programs():
     """Tự động biên dịch mã nguồn C nếu chưa có file .exe hoặc file .c mới hơn .exe"""
@@ -45,15 +45,10 @@ def main():
     width = 512
     height = 512
 
-    # 1. STEP 1: Python tạo rgb.raw
-    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
-        input_image = sys.argv[1]
-        print(f"\n[1] STEP 1 (Python): Đang nạp ảnh '{input_image}' -> rgb.raw...")
-        width, height = convert_image_to_rgb_raw(input_image, "rgb.raw", "rgb_preview.png")
-    else:
-        print(f"\n[1] STEP 1 (Python): Đang tạo ảnh màu mẫu 512x512 -> rgb.raw...")
-        img_array = create_sample_rgb_image(512, 512)
-        width, height = save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
+    # 1. STEP 1: Python tạo ảnh màu mẫu 512x512 -> rgb.raw
+    print(f"\n[1] STEP 1 (Python): Đang tạo ảnh màu mẫu 512x512 -> rgb.raw...")
+    img_array = create_sample_rgb_image(512, 512)
+    width, height = save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
 
     # Biên dịch file C nếu cần
     if not compile_c_programs():

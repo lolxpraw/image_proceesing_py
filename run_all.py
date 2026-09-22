@@ -2,12 +2,16 @@
 Chương trình chạy toàn bộ bài tập BT2:
 - Step 1: Python tạo rgb.raw (24 bit/pixel)
 - Step 2: C program chuyển rgb.raw -> gray.raw (8 bit/pixel)
-- Step 3: C program chuyển gray.raw -> binary.raw (binary scale)
+- Step 3: C program thuật toán Directional edge-based feature representation
+          -> Sinh ra binary.raw và 4 bản đồ hướng cạnh: edge_H, edge_P, edge_V, edge_M
+- Xuất ảnh tổng hợp directional_summary.png mô phỏng đúng Fig. 1 trong tài liệu nghiên cứu.
 """
 
 import os
 import sys
 import subprocess
+import numpy as np
+from PIL import Image
 
 # Cấu hình encoding utf-8 cho console Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -30,23 +34,61 @@ def compile_c_programs():
             need_compile = True
 
         if need_compile:
-            print(f"[Biên dịch] Đang biên dịch {src} bằng gcc...")
             ret = subprocess.run(["gcc", "-O2", src, "-o", exe])
             if ret.returncode != 0:
                 print(f"[Lỗi] Biên dịch thất bại cho {src}!")
                 return False
     return True
 
-def main():
-    print("=" * 65)
-    print(" BÀI TẬP 2 (BT2): KẾT HỢP PYTHON (STEP 1) & C (STEP 2, STEP 3)")
-    print("=" * 65)
+def export_edge_previews(width, height):
+    """Xuất các ảnh xem trước PNG cho các bản đồ hướng cạnh và ảnh tổng hợp Fig. 1"""
+    maps = {}
+    filenames = [
+        ("gray.raw", "gray_preview.png"),
+        ("binary.raw", "binary_preview.png"),
+        ("edge_H.raw", "edge_H.png"),
+        ("edge_P.raw", "edge_P.png"),
+        ("edge_V.raw", "edge_V.png"),
+        ("edge_M.raw", "edge_M.png")
+    ]
+    for raw_f, png_f in filenames:
+        if os.path.exists(raw_f):
+            with open(raw_f, "rb") as f:
+                data = f.read(width * height)
+                arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width))
+                img = Image.fromarray(arr, mode='L')
+                img.save(png_f)
+                maps[raw_f] = img
 
+    # Tạo ảnh ghép so sánh đúng theo Fig. 1:
+    # [Input image] -> [Horizontal FH] [+45 degree FP] [Vertical FV] [-45 degree FM]
+    if "gray.raw" in maps and "edge_H.raw" in maps and "edge_P.raw" in maps and "edge_V.raw" in maps and "edge_M.raw" in maps:
+        thumb_size = 160
+        gap = 16
+        total_w = thumb_size * 5 + gap * 6
+        total_h = thumb_size + 60
+        summary_img = Image.new('RGB', (total_w, total_h), color=(255, 255, 255))
+
+        images_to_show = [
+            (maps["gray.raw"], "Input Image"),
+            (maps["edge_H.raw"], "Horizontal (FH)"),
+            (maps["edge_P.raw"], "+45 deg (FP)"),
+            (maps["edge_V.raw"], "Vertical (FV)"),
+            (maps["edge_M.raw"], "-45 deg (FM)")
+        ]
+
+        for i, (im, label) in enumerate(images_to_show):
+            resized = im.resize((thumb_size, thumb_size))
+            x_pos = gap + i * (thumb_size + gap)
+            summary_img.paste(resized.convert('RGB'), (x_pos, 20))
+
+        summary_img.save("directional_summary.png")
+
+def main():
     width = 512
     height = 512
 
     # 1. STEP 1: Python tạo ảnh màu mẫu 512x512 -> rgb.raw
-    print(f"\n[1] STEP 1 (Python): Đang tạo ảnh màu mẫu 512x512 -> rgb.raw...")
     img_array = create_sample_rgb_image(512, 512)
     width, height = save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
 
@@ -55,31 +97,20 @@ def main():
         return
 
     # 2. STEP 2: Chạy chương trình C chuyển rgb.raw -> gray.raw
-    print(f"\n[2] STEP 2 (C Program): Đang chạy step2_rgb_to_gray.exe...")
     cmd_step2 = [".\\step2_rgb_to_gray.exe", str(width), str(height)]
     ret2 = subprocess.run(cmd_step2)
     if ret2.returncode != 0:
-        print("[Lỗi] Chạy step2_rgb_to_gray.exe thất bại!")
         return
 
-    # 3. STEP 3: Chạy chương trình C chuyển gray.raw -> binary.raw
-    threshold = 128
-    print(f"\n[3] STEP 3 (C Program): Đang chạy step3_gray_to_binary.exe (Threshold = {threshold})...")
-    cmd_step3 = [".\\step3_gray_to_binary.exe", str(threshold), str(width), str(height)]
+    # 3. STEP 3: Chạy chương trình C thuật toán Directional Edge Feature Representation
+    cmd_step3 = [".\\step3_gray_to_binary.exe", str(width), str(height)]
     ret3 = subprocess.run(cmd_step3)
     if ret3.returncode != 0:
-        print("[Lỗi] Chạy step3_gray_to_binary.exe thất bại!")
         return
 
-    print("\n" + "=" * 65)
-    print(" HOÀN THÀNH TẤT CẢ CÁC BƯỚC THÀNH CÔNG!")
-    print("=" * 65)
-    print("Các file RAW trong thư mục 'D:\\image processing':")
-    for fname in ["rgb.raw", "gray.raw", "binary.raw"]:
-        if os.path.exists(fname):
-            sz = os.path.getsize(fname)
-            print(f"  + {fname:<15} : {sz:,} bytes")
-    print("=" * 65)
+    # Xuất ảnh xem trước
+    export_edge_previews(width, height)
+    print("Đã xong")
 
 if __name__ == "__main__":
     main()

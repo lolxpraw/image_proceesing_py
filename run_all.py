@@ -18,7 +18,7 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
-from step1_create_rgb_raw import create_sample_rgb_image, save_rgb_raw
+from step1_create_rgb_raw import create_sample_rgb_image, save_rgb_raw, convert_image_to_rgb_raw
 
 def compile_c_programs():
     """Tự động biên dịch mã nguồn C nếu chưa có file .exe hoặc file .c mới hơn .exe"""
@@ -88,9 +88,12 @@ def main():
     width = 512
     height = 512
 
-    # 1. STEP 1: Python tạo ảnh màu mẫu 512x512 -> rgb.raw
-    img_array = create_sample_rgb_image(512, 512)
-    width, height = save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
+    # 1. STEP 1: Đọc ảnh ngoài (nếu có) hoặc tạo ảnh màu mẫu 512x512
+    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+        width, height = convert_image_to_rgb_raw(sys.argv[1], "rgb.raw", "rgb_preview.png")
+    else:
+        img_array = create_sample_rgb_image(512, 512)
+        width, height = save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
 
     # Biên dịch file C nếu cần
     if not compile_c_programs():
@@ -98,13 +101,13 @@ def main():
 
     # 2. STEP 2: Chạy chương trình C chuyển rgb.raw -> gray.raw
     cmd_step2 = [".\\step2_rgb_to_gray.exe", str(width), str(height)]
-    ret2 = subprocess.run(cmd_step2)
+    ret2 = subprocess.run(cmd_step2, stdout=subprocess.DEVNULL)
     if ret2.returncode != 0:
         return
 
     # 3. STEP 3: Chạy chương trình C thuật toán Directional Edge Feature Representation
     cmd_step3 = [".\\step3_gray_to_binary.exe", str(width), str(height)]
-    ret3 = subprocess.run(cmd_step3)
+    ret3 = subprocess.run(cmd_step3, stdout=subprocess.DEVNULL)
     if ret3.returncode != 0:
         return
 

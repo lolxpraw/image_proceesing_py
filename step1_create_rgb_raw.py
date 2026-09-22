@@ -80,8 +80,19 @@ def save_rgb_raw(img_array, output_raw_path="rgb.raw", preview_png_path="rgb_pre
     img.save(preview_png_path)
     return width, height
 
+def convert_image_to_rgb_raw(input_image_path, output_raw_path="rgb.raw", preview_png_path="rgb_preview.png"):
+    """
+    Đọc ảnh có sẵn (.jpg, .png, .bmp,...) và chuyển thành rgb.raw
+    """
+    img = Image.open(input_image_path).convert('RGB')
+    img_array = np.array(img, dtype=np.uint8)
+    return save_rgb_raw(img_array, output_raw_path, preview_png_path)
+
 if __name__ == "__main__":
-    img_array = create_sample_rgb_image(512, 512)
-    save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
+    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+        convert_image_to_rgb_raw(sys.argv[1])
+    else:
+        img_array = create_sample_rgb_image(512, 512)
+        save_rgb_raw(img_array, "rgb.raw", "rgb_preview.png")
     print("Đã xong")
 

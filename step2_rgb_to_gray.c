@@ -29,9 +29,7 @@ int main(int argc, char *argv[]) {
     } else {
         FILE *f_dim = fopen("image_dim.txt", "r");
         if (f_dim != NULL) {
-            if (fscanf(f_dim, "%d %d", &width, &height) == 2) {
-                printf("[Step 2 - C] Tu dong nhan dien kich thuoc tu image_dim.txt: %d x %d\n", width, height);
-            }
+            fscanf(f_dim, "%d %d", &width, &height);
             fclose(f_dim);
         }
     }
@@ -55,7 +53,6 @@ int main(int argc, char *argv[]) {
     }
 
     int total_pixels = width * height;
-    printf("[Step 2 - C] Dang doc '%s' (%d x %d = %d pixels)...\n", input_path, width, height, total_pixels);
 
     // Cấp phát bộ nhớ đệm cho dữ liệu ảnh
     // Mỗi pixel RGB có 3 byte (R, G, B)
@@ -73,10 +70,7 @@ int main(int argc, char *argv[]) {
     }
 
     // 4. Doc toan bo du lieu RGB vao buffer
-    size_t bytes_read = fread(rgb_buf, 1, rgb_size, f_in);
-    if (bytes_read != rgb_size) {
-        printf("[Canh bao] So byte doc duoc (%zu) khac voi du kien (%zu)!\n", bytes_read, rgb_size);
-    }
+    fread(rgb_buf, 1, rgb_size, f_in);
 
     // 5. Duyet qua tung pixel va tinh gia tri muc xam
     for (int i = 0; i < total_pixels; i++) {
@@ -95,10 +89,7 @@ int main(int argc, char *argv[]) {
     }
 
     // 6. Ghi du lieu anh xam vao file gray.raw
-    size_t bytes_written = fwrite(gray_buf, 1, total_pixels, f_out);
-    if (bytes_written != (size_t)total_pixels) {
-        printf("[Canh bao] So byte ghi duoc (%zu) khac voi du kien (%d)!\n", bytes_written, total_pixels);
-    }
+    fwrite(gray_buf, 1, total_pixels, f_out);
 
     // 7. Giai phong bo nho va dong file
     free(rgb_buf);
@@ -106,11 +97,7 @@ int main(int argc, char *argv[]) {
     fclose(f_in);
     fclose(f_out);
 
-    printf("[Step 2 - C] Da tao thanh cong file: '%s'\n", output_path);
-    printf("             - Kich thuoc: %d x %d\n", width, height);
-    printf("             - Do sau mau: 8 bit/pixel (1 byte/pixel)\n");
-    printf("             - Dung luong: %d bytes\n", total_pixels);
-
+    printf("Đã xong\n");
     return 0;
 }
 
